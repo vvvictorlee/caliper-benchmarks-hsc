@@ -22,7 +22,7 @@ test:
         opts:
           tps: 50
       workload:
-        module: benchmarks/scenario/simple/open.js
+        module: scenario/simple/open.js
         arguments: *simple-args
     - label: query
       description: Test description for the query performance of the deployed contract.
@@ -32,7 +32,7 @@ test:
         opts:
           tps: 100
       workload:
-        module: benchmarks/scenario/simple/query.js
+        module: scenario/simple/query.js
         arguments: *simple-args
     - label: transfer
       description: Test description for transfering money between accounts.
@@ -42,7 +42,7 @@ test:
         opts:
           tps: 5
       workload:
-        module: benchmarks/scenario/simple/transfer.js
+        module: scenario/simple/transfer.js
         arguments:
           << : *simple-args
           money: 100
