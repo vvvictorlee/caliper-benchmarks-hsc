@@ -43,7 +43,7 @@ The documented reports are built automatically from the `reports` branch of this
 
 ```
 zhangguanzhang/gcr.io.google_containers.cadvisor:latest
-
+caliper bind --caliper-bind-sut ethereum:1.3 --caliper-bind-args=-g
 
  caliper launch manager \
     --caliper-workspace . \
