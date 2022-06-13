@@ -49,7 +49,6 @@ test:
 monitors:
     transaction:
        - module: prometheus
-       - module: logging
     resource:
       - module: docker
         options:
