@@ -38,3 +38,16 @@ For detailed information about using this repo with hyperledger fabric see [Hype
 ## Extending the Documented Reports
 
 The documented reports are built automatically from the `reports` branch of this repository and subsequently hosted on the `gh-pages` branch; pull requests must be target the [`reports` branch](https://github.com/hyperledger/caliper-benchmarks/tree/reports) in order for any modifications to be built.
+
+
+
+```
+zhangguanzhang/gcr.io.google_containers.cadvisor:latest
+
+
+ caliper launch manager \
+    --caliper-workspace . \
+    --caliper-benchconfig benchmarks/scenario/simple/config.yaml \
+    --caliper-networkconfig ./networks/ethereum/1node-clique/networkconfig.json
+
+```

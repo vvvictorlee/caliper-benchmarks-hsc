@@ -17,7 +17,7 @@ Each of the above items are tagged with the client number, test name, and test r
 
 There are multiple docker-compose.yml files:
  - docker-compose-bare.yml: used to only stand up a prometheus/grafana system that will scrape from the Prometheus Push Gateway
- - docker-compose-fabric.yml: as above with the adition of targeting exported fabric metrics on:
+ - docker-compose-fabric.yml: as above with the addition of targeting exported fabric metrics on:
    - peer0.org1.example.com:9443
    - peer0.org2.example.com:9443
 

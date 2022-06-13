@@ -22,7 +22,7 @@ test:
         opts:
           tps: 50
       workload:
-        module: scenario/simple/open.js
+        module: benchmarks/scenario/simple/open.js
         arguments: *simple-args
     - label: query
       description: Test description for the query performance of the deployed contract.
@@ -32,7 +32,7 @@ test:
         opts:
           tps: 100
       workload:
-        module: scenario/simple/query.js
+        module: benchmarks/scenario/simple/query.js
         arguments: *simple-args
     - label: transfer
       description: Test description for transfering money between accounts.
@@ -42,7 +42,43 @@ test:
         opts:
           tps: 5
       workload:
-        module: scenario/simple/transfer.js
+        module: benchmarks/scenario/simple/transfer.js
         arguments:
           << : *simple-args
           money: 100
+monitors:
+    transaction:
+       - module: prometheus
+       - module: logging
+    resource:
+      - module: docker
+        options:
+          interval: 1
+          containers: ['all']
+          charting:
+          bar:
+            metrics: [Memory(avg), CPU%(avg)]
+          polar:
+            metrics: [all]
+      - module: prometheus
+        options:
+          url: "http://localhost:9090"
+          metrics:
+              include: []
+              queries:
+                  - name: Endorse Time (s)
+                    query: rate(endorser_propsal_duration_sum{chaincode="marbles:v0"}[1m])/rate(endorser_propsal_duration_count{chaincode="marbles:v0"}[1m])
+                    step: 1
+                    label: instance
+                    statistic: avg
+                  - name: Max Memory (MB)
+                    query: sum(container_memory_rss{name=~".+"}) by (name)
+                    step: 10
+                    label: name
+                    statistic: max
+                    multiplier: 0.000001
+          charting:
+            polar:
+              metrics: [Max Memory (MB)]
+            bar:
+              metrics: [all]
