@@ -1,0 +1,165 @@
+simpleArgs: &simple-args
+  initialMoney: 10000
+  moneyToTransfer: 100
+  numberOfAccounts: &number-of-accounts 1000
+test:
+  name: get-private-asset
+  description: >-
+    This is a duration based benchmark targeting a Hyperledger Fabric network
+    using the `fixed-asset` NodeJS chaincode
+    contract that is interacted with via a Fabric-SDK-Node Gateway. Each test
+    round invokes the 'getPrivateAsset()' API method. Successive rounds create
+    and retrieve assets of larger byteSize.
+  workers:
+    type: local
+    number: 10
+  rounds:
+    - label: get-private-asset-evaluate-100
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 100 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-200
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 200 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-500
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 500 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-1000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 1000 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-2000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 2000 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-5000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 5000 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-10000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 10000
+        bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-private-asset-evaluate-8000-fixed-tps
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getPrivateAsset`. This method
+        performs a getPrivateData on an item that matches an asset of size 8000 bytes
+        at a fixed TPS.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 350
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+monitors:
+    transaction:
+       - module: prometheus
+    resource:
+      - module: docker
+        options:
+          interval: 1
+          containers: ['all']
+          charting:
+          bar:
+            metrics: [Memory(avg), CPU%(avg)]
+          polar:
+            metrics: [all]
+      - module: prometheus
+        options:
+          url: "http://localhost:9090"
+          metrics:
+              include: []
+              queries:
+                  - name: Endorse Time (s)
+                    query: rate(endorser_propsal_duration_sum{chaincode="marbles:v0"}[1m])/rate(endorser_propsal_duration_count{chaincode="marbles:v0"}[1m])
+                    step: 1
+                    label: instance
+                    statistic: avg
+                  - name: Max Memory (MB)
+                    query: sum(container_memory_rss{name=~".+"}) by (name)
+                    step: 10
+                    label: name
+                    statistic: max
+                    multiplier: 0.000001
+          charting:
+            polar:
+              metrics: [Max Memory (MB)]
+            bar:
+              metrics: [all]

@@ -1,0 +1,121 @@
+simpleArgs: &simple-args
+  initialMoney: 10000
+  moneyToTransfer: 100
+  numberOfAccounts: &number-of-accounts 1000
+test:
+  name: fixed-tps-runs
+  description: Benchmark run to enable resource comparison for benchmarks
+  workers:
+    type: local
+    number: 10
+  rounds:
+    - label: create-asset-8000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 8000 bytes into the World State database.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: create-asset-batch-20-8000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAssetsFromBatch`, which
+        inserts a batch of 20 assets of size 8k bytes into the World State
+        database.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: get-asset-evaluate-8000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getAsset`. This method
+        performs a getState on an item that matches an asset of size 8000 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: get-asset-batch-evaluate-20-8000
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `getAssetsFromBatch`. This
+        method performs a getState on a batch of 20 UUIDs that each match an
+        asset of size 8000 bytes.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 50
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+    - label: mixed-range-query-evaluate-20
+      description: >-
+        Test an evaluateTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `paginatedRangeQuery`. This
+        method performs a paginated range query, with a passed pagesize of 20
+        and a range keys that bound 200 assets created by the calling client.
+      
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 30
+      workload:
+        module: benchmarks/scenario/simple/query.js
+        arguments: *simple-args
+monitors:
+    transaction:
+       - module: prometheus
+    resource:
+      - module: docker
+        options:
+          interval: 1
+          containers: ['all']
+          charting:
+          bar:
+            metrics: [Memory(avg), CPU%(avg)]
+          polar:
+            metrics: [all]
+      - module: prometheus
+        options:
+          url: "http://localhost:9090"
+          metrics:
+              include: []
+              queries:
+                  - name: Endorse Time (s)
+                    query: rate(endorser_propsal_duration_sum{chaincode="marbles:v0"}[1m])/rate(endorser_propsal_duration_count{chaincode="marbles:v0"}[1m])
+                    step: 1
+                    label: instance
+                    statistic: avg
+                  - name: Max Memory (MB)
+                    query: sum(container_memory_rss{name=~".+"}) by (name)
+                    step: 10
+                    label: name
+                    statistic: max
+                    multiplier: 0.000001
+          charting:
+            polar:
+              metrics: [Max Memory (MB)]
+            bar:
+              metrics: [all]

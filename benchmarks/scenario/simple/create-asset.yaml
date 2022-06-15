@@ -1,0 +1,186 @@
+simpleArgs: &simple-args
+  initialMoney: 10000
+  moneyToTransfer: 100
+  numberOfAccounts: &number-of-accounts 1000
+test:
+  name: create-asset-size-ramp
+  description: >-
+    This is a duration based benchmark targeting a Hyperledger Fabric network
+    using the `fixed-asset` NodeJS chaincode
+    contract that is interacted with via a Fabric-SDK-Node Gateway. Each test
+    round invokes the `createAsset` method, with successive rounds increasing
+    the byteSize of the asset added into the world state database.
+  workers:
+    type: local
+    number: 5
+  rounds:
+    - label: create-asset-8000-fixed-tps
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 8000 bytes into the World State database at a fixed TPS
+        rate.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 15
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-100
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 100 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-1000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 1000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-4000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 4000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-8000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 8000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-16000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 16000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-24000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 24000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-32000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 32000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+    - label: create-asset-64000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `createAsset`, which inserts
+        an asset of size 64000 bytes into the World State database.
+     
+      txDuration: 300
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 10
+          startingTps: 1
+      workload:
+        module: benchmarks/scenario/simple/open.js
+        arguments: *simple-args
+monitors:
+    transaction:
+       - module: prometheus
+    resource:
+      - module: docker
+        options:
+          interval: 1
+          containers: ['all']
+          charting:
+          bar:
+            metrics: [Memory(avg), CPU%(avg)]
+          polar:
+            metrics: [all]
+      - module: prometheus
+        options:
+          url: "http://localhost:9090"
+          metrics:
+              include: []
+              queries:
+                  - name: Endorse Time (s)
+                    query: rate(endorser_propsal_duration_sum{chaincode="marbles:v0"}[1m])/rate(endorser_propsal_duration_count{chaincode="marbles:v0"}[1m])
+                    step: 1
+                    label: instance
+                    statistic: avg
+                  - name: Max Memory (MB)
+                    query: sum(container_memory_rss{name=~".+"}) by (name)
+                    step: 10
+                    label: name
+                    statistic: max
+                    multiplier: 0.000001
+          charting:
+            polar:
+              metrics: [Max Memory (MB)]
+            bar:
+              metrics: [all]

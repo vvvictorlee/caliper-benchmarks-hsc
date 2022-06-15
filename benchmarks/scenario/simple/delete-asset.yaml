@@ -1,0 +1,212 @@
+simpleArgs: &simple-args
+  initialMoney: 10000
+  moneyToTransfer: 100
+  numberOfAccounts: &number-of-accounts 1000
+test:
+  name: delete-asset-ramp
+  description: >-
+    This is a duration based benchmark targeting a Hyperledger Fabric network
+    using the `fixed-asset` NodeJS chaincode
+    contract that is interacted with via a Fabric-SDK-Node Gateway. Each test
+    round invokes the 'deleteAsset' method. Successive rounds delete a-priori
+    created assets of larger byteSize.
+  workers:
+    type: local
+    number: 5
+  rounds:
+    - label: delete-asset-100
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 100
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-1000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 1000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-4000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 4000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-8000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 8000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-16000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 16000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-24000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 24000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-32000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 32000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-64000
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 64000
+        bytes.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-load
+        opts:
+          transactionLoad: 20
+          startingTps: 10
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+    - label: delete-asset-8000-fixed-tps
+      description: >-
+        Test a submitTransaction() Gateway method against the NodeJS
+        `fixed-asset` Smart Contract method named `deleteAsset`. This method
+        performs a deleteState on an item that matches an asset of size 8000
+        bytes at a fixed TPS.
+      
+      txNumber: 4000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 350
+      workload:
+        module: benchmarks/scenario/simple/transfer.js
+        arguments:
+          << : *simple-args
+          money: 100
+monitors:
+    transaction:
+       - module: prometheus
+    resource:
+      - module: docker
+        options:
+          interval: 1
+          containers: ['all']
+          charting:
+          bar:
+            metrics: [Memory(avg), CPU%(avg)]
+          polar:
+            metrics: [all]
+      - module: prometheus
+        options:
+          url: "http://localhost:9090"
+          metrics:
+              include: []
+              queries:
+                  - name: Endorse Time (s)
+                    query: rate(endorser_propsal_duration_sum{chaincode="marbles:v0"}[1m])/rate(endorser_propsal_duration_count{chaincode="marbles:v0"}[1m])
+                    step: 1
+                    label: instance
+                    statistic: avg
+                  - name: Max Memory (MB)
+                    query: sum(container_memory_rss{name=~".+"}) by (name)
+                    step: 10
+                    label: name
+                    statistic: max
+                    multiplier: 0.000001
+          charting:
+            polar:
+              metrics: [Max Memory (MB)]
+            bar:
+              metrics: [all]

@@ -50,4 +50,20 @@ caliper bind --caliper-bind-sut ethereum:1.3 --caliper-bind-args=-g
     --caliper-benchconfig benchmarks/scenario/simple/config.yaml \
     --caliper-networkconfig ./networks/ethereum/1node-clique/networkconfig.json
 
+
+caliper launch manager \
+    --caliper-workspace . \
+    --caliper-benchconfig benchmarks/scenario/simple/base.yaml \
+    --caliper-networkconfig ./networks/ethereum/1node-clique/networkconfig.json
+
+base.yaml                               empty-contract-2of.yaml
+config.yaml                             fixed-tps-runs.yaml
+create-asset-batch.yaml                 get-asset-batch.yaml
+create-asset.yaml                       get-asset.yaml
+create-private-asset.yaml               get-private-asset.yaml
+delete-asset-batch.yaml                 mixed-range-query-pagination.yaml
+delete-asset.yaml                       mixed-rich-query-pagination.yaml
+empty-contract-1of.yaml                 test.yaml
+
+
 ```
