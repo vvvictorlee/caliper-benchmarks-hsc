@@ -53,7 +53,7 @@ caliper bind --caliper-bind-sut ethereum:1.3 --caliper-bind-args=-g
 
 caliper launch manager \
     --caliper-workspace . \
-    --caliper-benchconfig benchmarks/scenario/simple/base.yaml \
+    --caliper-benchconfig benchmarks/scenario/simple/create-asset-batch.yaml \
     --caliper-networkconfig ./networks/ethereum/1node-clique/networkconfig.json
 
 base.yaml                               empty-contract-2of.yaml
